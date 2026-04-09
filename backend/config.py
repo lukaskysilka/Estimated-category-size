@@ -17,9 +17,4 @@ REGIONS = {
 }
 
 # -- CORS ----------------------------------------------------------------------
-ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "https://estimated-category-size.vercel.app",
-    "https://estimated-category-size-iep7c7r2e-lukaskysilkas-projects.vercel.app",
-]
+ALLOWED_ORIGINS = ["*"]
