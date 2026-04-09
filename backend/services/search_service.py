@@ -2,6 +2,7 @@ import httpx
 import asyncio
 from typing import List, Dict, Any
 from config import SERPER_API_KEY, REGIONS
+from services.translation_service import translate_ingredients
 import logging
 
 logger = logging.getLogger(__name__)
@@ -13,34 +14,41 @@ MAX_RESULTS_PER_REGION = 20
 
 def _build_queries(ingredients: str, region_key: str) -> List[str]:
     """
-    Build queries based solely on ingredients.
-    Each region gets language-appropriate queries.
+    CZ: Czech ingredient names.
+    EU/USA: Translated English names for accurate results.
     """
-    parts = [i.strip() for i in ingredients.split(",") if i.strip()]
-    first = parts[0] if parts else ""
-    top2 = " ".join(parts[:2])
-    top3 = " ".join(parts[:3])
+    # Czech parts for CZ queries
+    cz_parts = [i.strip() for i in ingredients.split(",") if i.strip()]
+    cz_first = cz_parts[0] if cz_parts else ""
+    cz_top2 = " ".join(cz_parts[:2])
+    cz_top3 = " ".join(cz_parts[:3])
+
+    # English parts for EU/USA queries
+    en_parts = translate_ingredients(ingredients)
+    en_first = en_parts[0] if en_parts else cz_first
+    en_top2 = " ".join(en_parts[:2])
+    en_top3 = " ".join(en_parts[:3])
 
     if region_key == "CZ":
         return [
-            f"{first} doplněk stravy koupit",
-            f"{first} kapsle tablety cena",
-            f"{top2} doplněk stravy",
-            f"{top3} kapsle koupit",
+            f"{cz_first} doplněk stravy koupit",
+            f"{cz_first} kapsle tablety cena",
+            f"{cz_top2} doplněk stravy",
+            f"{cz_top3} kapsle koupit",
         ]
     elif region_key == "EU":
         return [
-            f"{first} supplement buy",
-            f"{first} capsules supplement",
-            f"{top2} supplement capsules",
-            f"{top3} supplement buy",
+            f"{en_first} supplement buy",
+            f"{en_first} capsules supplement",
+            f"{en_top2} supplement capsules",
+            f"{en_top3} supplement buy",
         ]
     else:  # USA
         return [
-            f"{first} supplement capsules buy",
-            f"best {first} supplement",
-            f"{top2} supplement buy",
-            f"{top3} capsules supplement",
+            f"{en_first} supplement capsules buy",
+            f"best {en_first} supplement",
+            f"{en_top2} supplement buy",
+            f"{en_top3} capsules supplement",
         ]
 
 
